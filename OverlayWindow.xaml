@@ -1,0 +1,44 @@
+<Window x:Class="dịchMH.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Điều khiển bản dịch" Width="416" Height="60"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        Background="Transparent" Topmost="True" ShowInTaskbar="False"
+        WindowStartupLocation="Manual">
+    <Border Background="#F0141B28" BorderBrush="#384967"
+            BorderThickness="1" CornerRadius="12" Padding="12,8">
+        <Grid MouseLeftButtonDown="Header_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Text="Đang dịch..."
+                       Foreground="#E8EDF6" FontSize="11"
+                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                       Margin="0,0,8,0"/>
+            <ComboBox x:Name="RefreshIntervalComboBox" Grid.Column="1"
+                      Width="76" Height="32" FontSize="10"
+                      SelectedValuePath="Tag" SelectedIndex="1"
+                      SelectionChanged="RefreshIntervalComboBox_SelectionChanged"
+                      Margin="0,0,8,0">
+                <ComboBoxItem Content="1s" Tag="1"/>
+                <ComboBoxItem Content="2s" Tag="2"/>
+                <ComboBoxItem Content="3s" Tag="3"/>
+                <ComboBoxItem Content="5s" Tag="5"/>
+            </ComboBox>
+            <CheckBox x:Name="AutoRefreshCheckBox" Grid.Column="2"
+                      Content="Tự quét" Style="{StaticResource ModernSwitch}"
+                      FontSize="10" Margin="0,0,8,0"
+                      Checked="AutoRefreshCheckBox_Changed"
+                      Unchecked="AutoRefreshCheckBox_Changed"/>
+            <Button Grid.Column="3" Content="↻" Width="32" Height="32"
+                    ToolTip="Dịch lại ngay" Margin="0,0,6,0"
+                    Click="RefreshButton_Click"/>
+            <Button Grid.Column="4" Content="×" Width="32" Height="32"
+                    ToolTip="Đóng lớp phủ" Click="CloseButton_Click"/>
+        </Grid>
+    </Border>
+</Window>

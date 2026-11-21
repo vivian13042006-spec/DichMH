@@ -1,0 +1,10 @@
+<Window x:Class="dịchMH.TextOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bản dịch theo dòng"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        Background="Transparent" Topmost="True" ShowInTaskbar="False"
+        ShowActivated="False" Focusable="False" IsHitTestVisible="False"
+        WindowStartupLocation="Manual">
+    <Canvas x:Name="OverlayCanvas" IsHitTestVisible="False"/>
+</Window>
