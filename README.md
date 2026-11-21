@@ -4,9 +4,17 @@
 
 Ứng dụng chỉ OCR ảnh màn hình qua `Graphics.CopyFromScreen` và OCR của Windows; không có chế độ HOOK, không sửa tệp game, chèn DLL, đọc bộ nhớ hay gửi thao tác bàn phím/chuột tới game. Dù vậy, một số game/anti-cheat có thể chặn hoặc không cho phép mọi loại overlay; không thể bảo đảm điều này sẽ không ảnh hưởng tới tài khoản.
 
-## Chạy
+## Chạy bản dựng sẵn sau khi clone
 
-Mở `publish\DichManHinh.exe` (biểu tượng hai bong bóng thoại). Giữ các tệp DLL đi kèm trong cùng thư mục. Nếu Windows SmartScreen hiện cảnh báo vì ứng dụng cá nhân chưa được ký, chỉ tiếp tục nếu bạn tin tưởng bản dựng này.
+Repo có kèm bản Windows x64 self-contained trong `publish/`. Sau khi clone, mở PowerShell tại thư mục repo và chạy:
+
+```powershell
+.\publish\DichManHinh.exe
+```
+
+Không cần cài .NET SDK để chạy bản này. Giữ nguyên toàn bộ thư mục `publish/` vì EXE cần các DLL và tệp đi kèm. Nếu Windows SmartScreen hiện cảnh báo vì ứng dụng cá nhân chưa được ký, chỉ tiếp tục nếu bạn tin tưởng repo này.
+
+## Dùng ứng dụng
 
 1. Chọn ngôn ngữ OCR đã cài trong Windows.
 2. Nhấn **Chọn vùng để dịch**, kéo quanh chữ trong game; nhấn Esc để hủy.
@@ -26,7 +34,7 @@ Chế độ cửa sổ không viền (borderless) thường tương thích với
 - Các dòng được dịch riêng để đặt đúng vị trí; ngữ cảnh giữa nhiều dòng có thể không đầy đủ. Chu kỳ quét là khoảng tối thiểu mục tiêu; kết quả mới có thể chậm hơn nếu OCR hoặc mạng mất thêm thời gian.
 - Ứng dụng chỉ quét vùng đã chọn. Một số game toàn màn hình/anti-cheat có thể chặn chụp ảnh hoặc overlay.
 
-## Tự chạy từ mã nguồn
+## Chạy hoặc tự publish từ mã nguồn
 
 Cần .NET SDK 11 và Windows 10 phiên bản 2004 trở lên:
 
@@ -39,3 +47,5 @@ Tạo lại bản chạy độc lập:
 ```powershell
 dotnet publish -c Release -r win-x64 --self-contained true -o publish
 ```
+
+Sau khi cập nhật mã nguồn, hãy publish lại và commit các thay đổi trong `publish/` để người clone repo nhận được bản chạy mới nhất.
