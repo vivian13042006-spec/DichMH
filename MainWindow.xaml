@@ -30,7 +30,7 @@
                     </Grid.RowDefinitions>
                     <Border Background="#1B2A43" CornerRadius="12" Padding="10,6"
                             HorizontalAlignment="Left">
-                        <TextBlock Text="OCR  ·  DỊCH TRỰC TIẾP" Foreground="#9BB9FF"
+                        <TextBlock Text="OCR CỤC BỘ  ·  DỊCH TRỰC TIẾP" Foreground="#9BB9FF"
                                    FontSize="11" FontWeight="SemiBold"/>
                     </Border>
                     <TextBlock Grid.Row="1" Text="Dịch màn hình" FontSize="28"
@@ -50,6 +50,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Thiết lập nhận diện" FontSize="16"
                                    FontWeight="SemiBold"/>
@@ -57,7 +58,35 @@
                                    FontSize="12" Foreground="#AAB4C5" Margin="0,18,0,7"/>
                         <ComboBox Grid.Row="2" x:Name="LanguageComboBox"/>
 
-                        <Border Grid.Row="3" Background="#101620" BorderBrush="#253247"
+                        <Grid Grid.Row="3" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Background="#101620" BorderBrush="#253247"
+                                    BorderThickness="1" CornerRadius="10" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="OCR" Foreground="#7F8CA1"
+                                               FontSize="10" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="OcrStatusText" Text="Đang kiểm tra..."
+                                               Foreground="#DCE4F2" FontSize="12"
+                                               Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Background="#101620"
+                                    BorderBrush="#253247" BorderThickness="1"
+                                    CornerRadius="10" Padding="12" Margin="8,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="BỘ NHỚ DỊCH" Foreground="#7F8CA1"
+                                               FontSize="10" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="CacheStatusText" Text="0 dòng đã lưu"
+                                               Foreground="#DCE4F2" FontSize="12"
+                                               Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Grid.Row="4" Background="#101620" BorderBrush="#253247"
                                 BorderThickness="1" CornerRadius="10" Padding="14"
                                 Margin="0,18,0,0">
                             <Grid>
@@ -94,7 +123,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="4" Background="#1A2230" CornerRadius="8"
+                        <Border Grid.Row="5" Background="#1A2230" CornerRadius="8"
                                 Padding="11,9" Margin="0,14,0,0">
                             <TextBlock Text="Mẹo: chọn vùng nhỏ chứa lời thoại để giảm tải và quét nhanh hơn."
                                        Foreground="#AAB4C5" FontSize="11" TextWrapping="Wrap"/>

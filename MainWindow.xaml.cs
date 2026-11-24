@@ -30,6 +30,7 @@ public partial class MainWindow : Window
             {
                 SelectAreaButton.IsEnabled = false;
                 StatusText.Text = "Windows chưa cài gói OCR nào. Cài gói ngôn ngữ có tính năng nhận dạng chữ viết tay/nhập rồi mở lại ứng dụng.";
+                OcrStatusText.Text = "Chưa sẵn sàng";
                 return;
             }
 
@@ -37,6 +38,8 @@ public partial class MainWindow : Window
                 ? languages.First(language => string.Equals(language, "en-US", StringComparison.OrdinalIgnoreCase))
                 : languages[0];
             StatusText.Text = $"Đã tìm thấy {languages.Length} ngôn ngữ OCR của Windows. Cài thêm gói ngôn ngữ trong Windows để nhận diện ngôn ngữ khác.";
+            OcrStatusText.Text = $"Sẵn sàng · {languages.Length} ngôn ngữ";
+            CacheStatusText.Text = "0 dòng đã lưu";
         }
         catch (Exception exception)
         {
@@ -72,6 +75,8 @@ public partial class MainWindow : Window
             _overlay = new OverlayWindow
             {
                 RefreshRequested = TranslateSelectedAreaAsync,
+                AnnotationVisibilityRequested = visible =>
+                    _textOverlay?.SetAnnotationsVisible(visible),
                 Left = Math.Max(SystemParameters.WorkArea.Left + 12, SystemParameters.WorkArea.Right - 428),
                 Top = Math.Max(SystemParameters.WorkArea.Top + 12, SystemParameters.WorkArea.Bottom - 72)
             };
@@ -140,6 +145,7 @@ public partial class MainWindow : Window
                 await _translationService.TranslateCapturedImageAsync(image, _selectedLanguage);
             _textOverlay?.SetLines(area, translations);
             _overlay?.SetTranslation(translations.Count);
+            CacheStatusText.Text = $"{_translationService.CachedTranslationCount} dòng đã lưu";
         }
         catch (Exception exception)
         {

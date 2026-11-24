@@ -15,6 +15,8 @@ public partial class OverlayWindow : Window
 
     private bool _hasTranslation;
     private bool _captureFallback;
+    private bool _annotationsVisible = true;
+    public Action<bool>? AnnotationVisibilityRequested { get; set; }
 
     public Func<Task>? RefreshRequested { get; set; }
     public bool IsExcludedFromCapture { get; private set; }
@@ -80,6 +82,16 @@ public partial class OverlayWindow : Window
         {
             await RefreshRequested();
         }
+    }
+
+    private void AnnotationButton_Click(object sender, RoutedEventArgs e)
+    {
+        _annotationsVisible = !_annotationsVisible;
+        AnnotationVisibilityRequested?.Invoke(_annotationsVisible);
+        AnnotationButton.Content = _annotationsVisible ? "◉" : "○";
+        AnnotationButton.ToolTip = _annotationsVisible
+            ? "Ẩn bản dịch trên màn hình"
+            : "Hiện bản dịch trên màn hình";
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

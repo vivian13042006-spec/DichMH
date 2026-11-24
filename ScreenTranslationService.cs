@@ -16,11 +16,14 @@ public sealed class ScreenTranslationService
 {
     private static readonly SemaphoreSlim TranslationSlots = new(4);
     private readonly ConcurrentDictionary<string, string> _translationCache = new(StringComparer.Ordinal);
+    private PreviousTranslatedLine[] _previousLines = Array.Empty<PreviousTranslatedLine>();
 
     private static readonly HttpClient HttpClient = new()
     {
         Timeout = TimeSpan.FromSeconds(20)
     };
+
+    public int CachedTranslationCount => _translationCache.Count;
 
     public IReadOnlyList<string> AvailableOcrLanguages =>
         OcrEngine.AvailableRecognizerLanguages
@@ -34,13 +37,95 @@ public sealed class ScreenTranslationService
         IReadOnlyList<RecognizedScreenLine> recognizedLines = await RecognizeLinesAsync(image, languageTag);
         if (recognizedLines.Count == 0)
         {
+            if (_previousLines.Length > 0)
+            {
+                IReadOnlyList<TranslatedScreenLine> retainedLines = _previousLines
+                    .Where(line => line.MissingScans < 2)
+                    .Select(line => line.Translated)
+                    .ToArray();
+                if (retainedLines.Count > 0)
+                {
+                    _previousLines = _previousLines
+                        .Select(line => line with { MissingScans = line.MissingScans + 1 })
+                        .ToArray();
+                    return retainedLines;
+                }
+            }
+
             throw new InvalidOperationException("Không nhận diện được chữ trong vùng đã chọn. Hãy chọn vùng lớn hơn hoặc kiểm tra ngôn ngữ OCR.");
         }
 
-        return await Task.WhenAll(recognizedLines.Select(async line =>
-            new TranslatedScreenLine(
-                await TranslateLineAsync(line.Text, languageTag),
-                line.Bounds)));
+        var nextLines = new List<PreviousTranslatedLine>(recognizedLines.Count);
+        var matchedPrevious = new bool[_previousLines.Length];
+
+        foreach (RecognizedScreenLine line in recognizedLines)
+        {
+            int previousIndex = FindPreviousLineWithSameText(line.Text);
+            string translation;
+
+            if (previousIndex >= 0)
+            {
+                matchedPrevious[previousIndex] = true;
+                translation = _previousLines[previousIndex].Translated.Text;
+            }
+            else
+            {
+                translation = await TranslateLineAsync(line.Text, languageTag);
+            }
+
+            nextLines.Add(new PreviousTranslatedLine(
+                line.Text,
+                new TranslatedScreenLine(translation, line.Bounds),
+                0));
+        }
+
+        for (int previousIndex = 0; previousIndex < _previousLines.Length; previousIndex++)
+        {
+            if (matchedPrevious[previousIndex])
+            {
+                continue;
+            }
+
+            bool lineChangedAtSamePosition = recognizedLines.Any(line =>
+                !string.Equals(line.Text, _previousLines[previousIndex].SourceText, StringComparison.Ordinal)
+                && BoundsAreNear(_previousLines[previousIndex].Translated.Bounds, line.Bounds));
+
+            if (!lineChangedAtSamePosition
+                && _previousLines[previousIndex].MissingScans < 2)
+            {
+                nextLines.Add(_previousLines[previousIndex] with
+                {
+                    MissingScans = _previousLines[previousIndex].MissingScans + 1
+                });
+            }
+        }
+
+        _previousLines = nextLines.ToArray();
+        return nextLines.Select(line => line.Translated).ToArray();
+    }
+
+    private int FindPreviousLineWithSameText(string sourceText)
+    {
+        for (int index = 0; index < _previousLines.Length; index++)
+        {
+            if (string.Equals(_previousLines[index].SourceText, sourceText, StringComparison.Ordinal))
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool BoundsAreNear(RectangleF first, RectangleF second)
+    {
+        float firstCenterX = first.X + first.Width / 2;
+        float firstCenterY = first.Y + first.Height / 2;
+        float secondCenterX = second.X + second.Width / 2;
+        float secondCenterY = second.Y + second.Height / 2;
+        float deltaX = firstCenterX - secondCenterX;
+        float deltaY = firstCenterY - secondCenterY;
+        return deltaX * deltaX + deltaY * deltaY <= 24 * 24;
     }
 
     private static Task<byte[]> CapturePngAsync(Rectangle area)
@@ -167,3 +252,7 @@ public sealed class ScreenTranslationService
 public sealed record TranslatedScreenLine(string Text, RectangleF Bounds);
 
 internal sealed record RecognizedScreenLine(string Text, RectangleF Bounds);
+internal sealed record PreviousTranslatedLine(
+    string SourceText,
+    TranslatedScreenLine Translated,
+    int MissingScans);
